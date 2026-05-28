@@ -14,7 +14,7 @@ const els = {
   pendingOnly: document.getElementById("pendingOnly"),
   diagramMode: document.getElementById("diagramMode"),
   exportLayout: document.getElementById("exportLayout"),
-  exportDiagramSvg: document.getElementById("exportDiagramSvg"),
+exportDiagramSvg: document.getElementById("exportDiagramSvg"),
   exportDiagramJpg: document.getElementById("exportDiagramJpg"),
   layoutInput: document.getElementById("layoutInput"),
   summary: document.getElementById("summary"),
@@ -62,7 +62,7 @@ function bindEvents() {
   });
 
   els.exportLayout.addEventListener("click", exportLayout);
-  els.exportDiagramSvg.addEventListener("click", exportDiagramSvg);
+els.exportDiagramSvg.addEventListener("click", exportDiagramSvg);
   els.exportDiagramJpg.addEventListener("click", exportDiagramJpg);
   els.diagramMode.addEventListener("click", () => {
     diagramEditMode = !diagramEditMode;
@@ -217,7 +217,7 @@ function renderDiagram() {
   });
   const stepById = new Map(steps.map((step) => [step.id, step]));
   const transitions = (model.transiciones || []).filter((t) => visibleIds.has(t.desde) && (t.hacia === null || visibleIds.has(t.hacia)));
-  const rowHeight = 230;
+  const rowHeight = 248;
   const laneWidth = 260;
   const headerHeight = 44;
   const leftPad = 44;
@@ -228,24 +228,30 @@ function renderDiagram() {
     const x = Number.isFinite(step.savedX) ? step.savedX : leftPad + step.lane * laneWidth + 18;
     const y = Number.isFinite(step.savedY) ? step.savedY : headerHeight + step.row * rowHeight + 28;
     const titleLines = wrapText(step.etapa, 25, 3);
-    const metaLines = wrapText(step.descripcion || step.resultado, 34, 7);
+    const metaLines = wrapText(step.descripcion || step.resultado, 36, 9);
     const sysIcons = systemIcons(step.sistema);
     return `
       <g class="diagramCard ${selectedDiagramStepId === step.id ? "selected" : ""}" data-step-id="${step.id}" transform="translate(${x} ${y})">
         <title>${escapeSvg(step.sistema || "")}</title>
-        <rect width="216" height="134" rx="7" class="${phaseClass(step.fase)}"></rect>
+        <rect width="240" height="155" rx="7" class="${phaseClass(step.fase)}"></rect>
         <circle cx="19" cy="20" r="13"></circle>
         <text x="19" y="24" text-anchor="middle" class="cardNum">${step.id}</text>
         <text x="40" y="18" class="cardTitle">${svgTspans(titleLines, 40, 18, 14)}</text>
         <text x="12" y="48" class="cardMeta">${svgTspans(metaLines, 12, 48, 13)}</text>
         ${svgIconBadges(sysIcons)}
+        <g class="cardResetBtn" data-step-id="${step.id}">
+          <circle cx="226" cy="14" r="11"></circle>
+          <text x="226" y="19" text-anchor="middle" class="cardResetIcon">↺</text>
+        </g>
       </g>`;
   }).join("");
 
-  const connectorParts = transitions.map((transition, index) => {
+  const connectorLines = [];
+  const connectorHandles = [];
+  transitions.forEach((transition, index) => {
     const from = stepById.get(transition.desde);
     const to = transition.hacia === null ? null : stepById.get(transition.hacia);
-    if (!from) return "";
+    if (!from) return;
     const fromX = Number.isFinite(from.savedX) ? from.savedX : leftPad + from.lane * laneWidth + 18;
     const fromY = Number.isFinite(from.savedY) ? from.savedY : headerHeight + from.row * rowHeight + 28;
     const toX = to ? (Number.isFinite(to.savedX) ? to.savedX : leftPad + to.lane * laneWidth + 18) : null;
@@ -270,19 +276,22 @@ function renderDiagram() {
           <text x="38" y="22" text-anchor="middle">Fin</text>
         </g>`
       : "";
-    return `
+    connectorLines.push(`
       <g class="connector" data-connector-key="${escapeHtml(key)}">
         <path class="flowLine ${cls}" d="${path}" marker-end="url(#${markerId})"></path>
         ${terminal}
         <g class="lineLabel ${cls}" data-connector-key="${escapeHtml(key)}" transform="translate(${label.x} ${label.y})">
           <text text-anchor="middle">${svgTspans(labelLines, 0, 0, 12)}</text>
         </g>
+      </g>`);
+    connectorHandles.push(`
+      <g class="connectorHandleGroup" data-connector-key="${escapeHtml(key)}">
         <circle class="connectorHandle from" data-connector-key="${escapeHtml(key)}" data-end="from" cx="${start.x}" cy="${start.y}" r="6"></circle>
         <circle class="connectorHandle to" data-connector-key="${escapeHtml(key)}" data-end="to" cx="${end.x}" cy="${end.y}" r="6"></circle>
         <circle class="connectorHandle control" data-connector-key="${escapeHtml(key)}" data-end="control" cx="${control.x}" cy="${control.y}" r="5"></circle>
         <circle class="connectorHandle label" data-connector-key="${escapeHtml(key)}" data-end="label" cx="${label.x}" cy="${label.y}" r="4"></circle>
-      </g>`;
-  }).join("");
+      </g>`);
+  });
 
   const headers = lanes.map((lane, index) => {
     const x = leftPad + index * laneWidth;
@@ -333,8 +342,9 @@ function renderDiagram() {
         </defs>
         ${laneBands}
         ${headers}
-        ${connectorParts}
+        ${connectorLines.join("")}
         ${cards}
+        ${connectorHandles.join("")}
       </svg>
       ${renderDiagramDetails(selectedStep, selectedPosition, width)}
     </div>`;
@@ -348,9 +358,9 @@ function renderDiagramDetails(step, position, diagramWidth) {
   if (!step) return "";
   const panelWidth = 390;
   const gap = 18;
-  const left = position.x + 216 + gap + panelWidth > diagramWidth
+  const left = position.x + 240 + gap + panelWidth > diagramWidth
     ? Math.max(12, position.x - panelWidth - gap)
-    : position.x + 216 + gap;
+    : position.x + 240 + gap;
   const top = Math.max(56, position.y + 10);
   const incoming = (model.transiciones || []).filter((transition) => transition.hacia === step.id);
   const outgoing = (model.transiciones || []).filter((transition) => transition.desde === step.id);
@@ -519,12 +529,27 @@ function escapeSvg(value) {
 function bindDiagramDrag() {
   const svg = els.diagramView.querySelector("svg");
   if (!svg) return;
+  svg.querySelectorAll(".cardResetBtn").forEach((btn) => {
+    btn.addEventListener("pointerdown", (event) => event.stopPropagation());
+    btn.addEventListener("click", (event) => {
+      event.stopPropagation();
+      const stepId = Number(btn.dataset.stepId);
+      if (!layout.diagram) return;
+      (model.transiciones || []).forEach((transition) => {
+        if (transition.desde !== stepId && transition.hacia !== stepId) return;
+        const key = transitionKey(transition);
+        delete layout.diagram.connectors?.[key];
+        delete layout.diagram.terminals?.[key];
+      });
+      renderDiagram();
+    });
+  });
   svg.querySelectorAll(".diagramCard").forEach((card) => {
     card.addEventListener("pointerdown", (event) => {
       const id = card.dataset.stepId;
       const point = svgPoint(svg, event.clientX, event.clientY);
       const current = getStepPositionFromTransform(card);
-      dragState = { id, card, offsetX: point.x - current.x, offsetY: point.y - current.y };
+      dragState = { id, card, offsetX: point.x - current.x, offsetY: point.y - current.y, startX: current.x, startY: current.y };
       card.setPointerCapture(event.pointerId);
       card.classList.add("dragging");
     });
@@ -540,6 +565,8 @@ function bindDiagramDrag() {
       if (!dragState || dragState.card !== card) return;
       card.releasePointerCapture(event.pointerId);
       card.classList.remove("dragging");
+      const newPos = getStepPositionFromTransform(card);
+      updateConnectorsForMovedStep(Number(dragState.id), newPos.x - dragState.startX, newPos.y - dragState.startY);
       dragState = null;
       renderDiagram();
     });
@@ -616,6 +643,29 @@ function getStepPositionFromTransform(card) {
   };
 }
 
+function updateConnectorsForMovedStep(stepId, deltaX, deltaY) {
+  if ((deltaX === 0 && deltaY === 0) || !layout.diagram?.connectors) return;
+  (model.transiciones || []).forEach((transition) => {
+    const key = transitionKey(transition);
+    const saved = layout.diagram.connectors[key];
+    if (!saved) return;
+    const fromMoves = transition.desde === stepId;
+    const toMoves = transition.hacia !== null && transition.hacia === stepId;
+    const isTerminal = transition.hacia === null;
+    if (fromMoves && saved.from) saved.from = { x: Math.round(saved.from.x + deltaX), y: Math.round(saved.from.y + deltaY) };
+    if (toMoves && saved.to) saved.to = { x: Math.round(saved.to.x + deltaX), y: Math.round(saved.to.y + deltaY) };
+    if (isTerminal && fromMoves) {
+      if (saved.to) saved.to = { x: Math.round(saved.to.x + deltaX), y: Math.round(saved.to.y + deltaY) };
+      if (layout.diagram.terminals?.[key]) layout.diagram.terminals[key] = { x: Math.round(layout.diagram.terminals[key].x + deltaX), y: Math.round(layout.diagram.terminals[key].y + deltaY) };
+    }
+    const factor = (fromMoves && (toMoves || isTerminal)) ? 1 : (fromMoves || toMoves) ? 0.5 : 0;
+    if (factor > 0) {
+      if (saved.control) saved.control = { x: Math.round(saved.control.x + deltaX * factor), y: Math.round(saved.control.y + deltaY * factor) };
+      if (saved.label) saved.label = { x: Math.round(saved.label.x + deltaX * factor), y: Math.round(saved.label.y + deltaY * factor) };
+    }
+  });
+}
+
 function setStepLayout(id, x, y) {
   if (!layout.diagram) layout.diagram = { steps: {} };
   if (!layout.diagram.steps) layout.diagram.steps = {};
@@ -646,7 +696,7 @@ function snapConnectorPoint(svg, key, end, x, y) {
   const card = svg.querySelector(`.diagramCard[data-step-id="${stepId}"]`);
   if (!card) return { x, y };
   const pos = getStepPositionFromTransform(card);
-  return closestPointOnCard(pos.x, pos.y, 216, 134, x, y);
+  return closestPointOnCard(pos.x, pos.y, 240, 155, x, y);
 }
 
 function closestPointOnCard(cardX, cardY, width, height, x, y) {
@@ -674,19 +724,19 @@ function defaultConnectorPoints(transition, fromX, fromY, toX, toY, index) {
   const isForwardNormal = transition.tipo === "normal" && transition.hacia !== null && transition.hacia > transition.desde;
   if (transition.hacia === null) {
     return {
-      from: { x: fromX + 224, y: fromY + 60 + ((index % 2) * 18) },
-      to: { x: fromX + 410, y: fromY + 60 + ((index % 2) * 18) }
+      from: { x: fromX + 248, y: fromY + 70 + ((index % 2) * 18) },
+      to: { x: fromX + 434, y: fromY + 70 + ((index % 2) * 18) }
     };
   }
   if (isForwardNormal) {
     return {
-      from: { x: fromX + 108, y: fromY + 140 },
-      to: { x: toX + 108, y: toY - 8 }
+      from: { x: fromX + 120, y: fromY + 163 },
+      to: { x: toX + 120, y: toY - 8 }
     };
   }
   return {
-    from: { x: fromX + 224, y: fromY + 60 + ((index % 2) * 22) },
-    to: { x: toX - 8, y: toY + 60 }
+    from: { x: fromX + 248, y: fromY + 70 + ((index % 2) * 22) },
+    to: { x: toX - 8, y: toY + 70 }
   };
 }
 
@@ -743,8 +793,8 @@ function getContentBounds(svg) {
     const p = getStepPositionFromTransform(card);
     x0 = Math.min(x0, p.x);
     y0 = Math.min(y0, p.y);
-    x1 = Math.max(x1, p.x + 216);
-    y1 = Math.max(y1, p.y + 170);
+    x1 = Math.max(x1, p.x + 240);
+    y1 = Math.max(y1, p.y + 191);
   });
 
   svg.querySelectorAll(".terminalNode").forEach((node) => {
@@ -847,29 +897,43 @@ function wrapText(value, maxChars, maxLines = 3) {
   return kept;
 }
 
+const BADGE_ICONS = {
+  phone:    { color: "#1b5c9e", d: "M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" },
+  whatsapp: { color: "#25a244", filled: true, d: "M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM11.999 2c-5.514 0-9.999 4.486-9.999 10 0 1.768.465 3.425 1.28 4.866L2 22l5.277-1.249C8.64 21.514 10.288 22 12 22c5.514 0 10-4.486 10-10S17.513 2 11.999 2z" },
+  email:    { color: "#667085", d: "M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" },
+  system:   { color: "#102233", d: "M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" },
+  external: { color: "#b42318", d: "M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" },
+  manual:   { color: "#a45f00", d: "M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" }
+};
+
 function systemIcons(sistema) {
   const s = (sistema || "").toLowerCase();
   const icons = [];
-  if (s.includes("teléfono") || s.includes("telefono")) icons.push("☎️");
-  if (s.includes("whatsapp")) icons.push("💬");
-  if (s.includes("correo")) icons.push("📧");
-  if (s.includes("fotos")) icons.push("📷");
-  if (s.includes("manual")) icons.push("✋");
-  if (s.includes("dentro")) icons.push("🖥️");
-  if (s.includes("parcial")) icons.push("◐");
-  if (s.includes("externo")) icons.push("🔗");
-  return icons;
+  if (s.includes("whatsapp"))                           icons.push(BADGE_ICONS.whatsapp);
+  if (s.includes("teléfono") || s.includes("telefono")) icons.push(BADGE_ICONS.phone);
+  if (s.includes("correo"))                             icons.push(BADGE_ICONS.email);
+  if (s.includes("manual"))                             icons.push(BADGE_ICONS.manual);
+  if (s.includes("fuera"))                              icons.push(BADGE_ICONS.external);
+  if (s.startsWith("dentro") || s.includes("sistema dispara")) icons.push(BADGE_ICONS.system);
+  return icons.slice(0, 4);
 }
 
 function svgIconBadges(icons) {
   if (!icons.length) return "";
-  const r = 16;
-  const step = 36;
-  const cy = 152;
-  return icons.map((icon, i) => {
-    const cx = r + i * step;
-    return `<circle cx="${cx}" cy="${cy}" r="${r}" style="fill: white; stroke: #9ca3af; stroke-width: 1.5"/>
-      <text x="${cx}" y="${cy + 6}" text-anchor="middle" class="cardSystem">${escapeSvg(icon)}</text>`;
+  const r = 16, gap = 5;
+  let cx = r + 8;
+  const cy = 172;
+  return icons.map((icon) => {
+    const pathEl = icon.filled
+      ? `<path d="${icon.d}" fill="white"/>`
+      : `<path d="${icon.d}" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>`;
+    const badge = `
+      <circle cx="${cx}" cy="${cy}" r="${r}" fill="${icon.color}"/>
+      <g transform="translate(${cx - 7} ${cy - 7}) scale(0.6)">
+        ${pathEl}
+      </g>`;
+    cx += r * 2 + gap;
+    return badge;
   }).join("");
 }
 

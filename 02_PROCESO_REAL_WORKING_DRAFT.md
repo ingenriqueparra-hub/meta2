@@ -105,7 +105,7 @@ El proceso real debe describir cómo METAFIN quiere operar el servicio de asiste
 |---|---|---|
 | 1 | Contacto y solicitud | El cliente contacta al Call Center por teléfono para solicitar asistencia. La solicitud se recibe aunque aún no se haya validado cobertura. |
 | 2 | Identificación cliente / contrato | El Call Center busca al cliente en el sistema por DNI, número de póliza o certificado. Si el cliente no es localizado, se registra la solicitud y se cierra con motivo NP-001. |
-| 3 | Validación de póliza/certificado/cobertura | El sistema verifica la vigencia del contrato, coberturas aplicables y límites del servicio según el Deal para determinar si la solicitud procede. |
+| 3 | Validación de póliza/certificado/cobertura | El sistema verifica la vigencia del contrato y muestra al Call Center el desglose de coberturas, eventos consumidos y saldo disponible del asegurado para que informe al cliente y determine si procede, no procede o requiere excepción. |
 | 4 | Registro o cierre de Solicitud | Se registra formalmente la solicitud con su resultado en el sistema. Toda solicitud queda registrada, incluso las rechazadas o desistidas. |
 | 5 | Apertura de Asistencia | El Call Center crea la Asistencia como unidad operativa cuando la solicitud procede o se autoriza por excepción. La Asistencia agrupa todos los servicios del caso. |
 | 6 | Clasificación del servicio | El Call Center define el tipo y subtipo de servicio requerido según el catálogo del Deal para dimensionar correctamente la atención. |
@@ -124,6 +124,19 @@ El proceso real debe describir cómo METAFIN quiere operar el servicio de asiste
 | 19 | Liquidación / pago al proveedor | El Área Administrativa registra la factura del proveedor, ejecuta la validación interna, aprueba y registra el pago. Se concilia la OS contra factura y pago. |
 | 20 | Reporte / cobro al Deal | Se genera el reporte de servicios prestados por Deal y se procesa el cobro o conciliación según el acuerdo comercial vigente con cada Deal. |
 | 21 | Reportería y control | El sistema consolida KPIs operativos, financieros y de calidad. El equipo de gestión accede a dashboards y exportaciones para el control del servicio. |
+
+### Detalle — Paso 3: Validación de póliza/certificado/cobertura
+
+El sistema verifica la vigencia del contrato, coberturas aplicables y límites del servicio según el Deal. Adicionalmente, muestra al Call Center el **desglose completo de cobertura del asegurado**:
+
+- Servicios cubiertos por plan y sus condiciones.
+- Límites por servicio (máximo anual, mensual o por evento según el Deal).
+- Eventos ya consumidos en el período vigente.
+- Saldo disponible para utilizar.
+
+Esta información permite al agente informar al cliente de forma precisa antes de proceder, rechazar o gestionar una excepción, evitando autorizaciones fuera de límite o rechazos incorrectos.
+
+> **Pendiente:** requiere que estén resueltos DEC-005 (fuente de datos: carga masiva, API o mixto) y DEC-027 (reglas, límites y exclusiones por Deal). Sin esas decisiones el sistema no tiene de dónde obtener el desglose ni el histórico de consumo.
 
 ## Flujo de decisiones clave
 

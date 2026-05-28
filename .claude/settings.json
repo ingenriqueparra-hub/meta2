@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node -e \"const d=require\\('./data/metafin_consolidado.json'\\); const s=d.flujo.find\\(x=>x.id===3\\); console.log\\(JSON.stringify\\(s,null,2\\)\\)\")",
+      "Bash(node -e \"const d=require\\('./data/metafin_consolidado.json'\\); const s=d.flujo.find\\(x=>x.id===6\\); console.log\\(JSON.stringify\\(s,null,2\\)\\)\")",
+      "Bash(node -e \"const d=require\\('./data/metafin_consolidado.json'\\); const s=d.flujo.find\\(x=>x.id===7\\); console.log\\(JSON.stringify\\(s,null,2\\)\\)\")",
+      "Bash(node -e \"const d=require\\('./data/metafin_consolidado.json'\\); const s=d.flujo.find\\(x=>x.id===8\\); console.log\\(JSON.stringify\\(s,null,2\\)\\)\")",
+      "Bash(node -e \"const d=require\\('./data/metafin_consolidado.json'\\); const s=d.flujo.find\\(x=>x.id===12\\); console.log\\(JSON.stringify\\(s,null,2\\)\\)\")",
+      "Bash(node -e \"const d=require\\('./data/metafin_consolidado.json'\\); const s=d.flujo.find\\(x=>x.id===17\\); console.log\\(JSON.stringify\\(s,null,2\\)\\)\")"
+    ]
+  }
+}

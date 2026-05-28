@@ -459,6 +459,7 @@ select {
   box-shadow: 0 12px 30px rgba(16, 34, 51, .16);
 }
 
+
 .detailsClose {
   position: absolute;
   top: 8px;
@@ -673,6 +674,28 @@ select {
 
 .diagramWrap.viewMode .connectorHandle {
   display: none;
+}
+
+.diagramWrap.viewMode .cardResetBtn {
+  display: none;
+}
+
+.cardResetBtn circle {
+  fill: rgba(255, 255, 255, .88);
+  stroke: var(--line);
+  stroke-width: 1.5;
+  cursor: pointer;
+}
+
+.cardResetBtn:hover circle {
+  stroke: var(--amber);
+  fill: #fff6e5;
+}
+
+.cardResetIcon {
+  fill: var(--muted);
+  font-size: 13px;
+  pointer-events: none;
 }
 
 .connectorHandle.to {
