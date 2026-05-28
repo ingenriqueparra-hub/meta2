@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>METAFIN Asistencias - Visor dinámico</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <p class="eyebrow">METAFIN Asistencias</p>
+      <h1>Visor dinámico del proceso real</h1>
+    </div>
+    <div class="source">
+      <span id="loadStatus">Cargando JSON...</span>
+      <label class="fileButton">
+        Cargar JSON
+        <input id="fileInput" type="file" accept="application/json">
+      </label>
+    </div>
+  </header>
+
+  <main>
+    <section class="controls" aria-label="Filtros">
+      <label>
+        Buscar
+        <input id="searchInput" type="search" placeholder="Etapa, actor, pendiente...">
+      </label>
+      <label>
+        Fase
+        <select id="phaseFilter">
+          <option value="">Todas</option>
+        </select>
+      </label>
+      <label>
+        Actor
+        <select id="actorFilter">
+          <option value="">Todos</option>
+        </select>
+      </label>
+      <label class="check">
+        <input id="pendingOnly" type="checkbox">
+        Solo con pendientes
+      </label>
+      <div class="layoutTools">
+        <button id="diagramMode" type="button" aria-pressed="false">Visualizar</button>
+        <button id="exportLayout" type="button">Exportar layout</button>
+        <button id="exportDiagramSvg" type="button">Exportar SVG</button>
+        <button id="exportDiagramJpg" type="button">Exportar JPG</button>
+        <label class="layoutImport">
+          Importar layout
+          <input id="layoutInput" type="file" accept="application/json">
+        </label>
+      </div>
+    </section>
+
+    <section class="summary" id="summary"></section>
+
+    <nav class="tabs" aria-label="Vistas">
+      <button class="tab active" data-view="flow">Flujo</button>
+      <button class="tab" data-view="diagram">Diagrama</button>
+      <button class="tab" data-view="transitions">Transiciones</button>
+      <button class="tab" data-view="decisions">Pendientes</button>
+      <button class="tab" data-view="scope">Alcance</button>
+      <button class="tab" data-view="trace">Trazabilidad HTML</button>
+      <button class="tab" data-view="json">JSON</button>
+    </nav>
+
+    <section id="flowView" class="view active"></section>
+    <section id="diagramView" class="view"></section>
+    <section id="transitionsView" class="view"></section>
+    <section id="decisionsView" class="view"></section>
+    <section id="scopeView" class="view"></section>
+    <section id="traceView" class="view"></section>
+    <section id="jsonView" class="view"></section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

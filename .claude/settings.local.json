@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node -e \"const d=require\\('./data/metafin_consolidado.json'\\); d.flujo.slice\\(0,5\\).forEach\\(s=>console.log\\(s.id, '|', s.etapa, '| resultado:', s.resultado, '| sistema:', s.sistema\\)\\)\")",
+      "Bash(node -e \"const d=require\\('./data/metafin_consolidado.json'\\); d.flujo.forEach\\(s=>console.log\\(s.id, '| sistema:', s.sistema\\)\\)\")"
+    ]
+  }
+}

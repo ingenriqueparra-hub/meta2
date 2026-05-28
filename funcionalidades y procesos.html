@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sistema Multiasistencia</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: 'Segoe UI', Arial, sans-serif; background:#f0f2f5; min-height:100vh; }
+
+/* ── HEADER ── */
+.header {
+  background: linear-gradient(135deg, #0d1b2a 0%, #1a4f8a 100%);
+  padding: 20px 16px 0; color: white;
+  position: sticky; top: 0; z-index: 200;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+}
+.header-eyebrow { font-size:9px; letter-spacing:3px; opacity:0.5; text-transform:uppercase; margin-bottom:3px; }
+.header-title { font-size:18px; font-weight:700; }
+.header-sub { font-size:11px; opacity:0.55; margin-top:2px; }
+.tabs { display:flex; gap:4px; margin-top:14px; }
+.tab {
+  flex:1; padding:9px 4px; border-radius:10px 10px 0 0; border:none;
+  font-size:11px; cursor:pointer; transition:all 0.2s;
+  font-family:inherit; font-weight:600; text-align:center;
+}
+.tab.active { background:#f0f2f5; color:#0d1b2a; }
+.tab.inactive { background:rgba(255,255,255,0.12); color:rgba(255,255,255,0.8); }
+
+/* ── VIEWS ── */
+.view { display:none; }
+.view.active { display:block; }
+
+/* ══════════════════════════
+   MÓDULOS
+══════════════════════════ */
+#view-modules { padding:14px 12px 24px; }
+.hint { font-size:11px; color:#aaa; margin-bottom:12px; }
+
+.mod-card {
+  background:white; border-radius:12px;
+  box-shadow:0 1px 5px rgba(0,0,0,0.07);
+  border:2px solid transparent; transition:all 0.2s;
+  cursor:pointer; margin-bottom:9px; overflow:hidden;
+}
+.mod-card.open { box-shadow:0 4px 16px rgba(0,0,0,0.12); }
+.mod-header { display:flex; align-items:center; gap:11px; padding:13px; }
+.mod-icon { width:38px; height:38px; border-radius:9px; display:flex; align-items:center; justify-content:center; font-size:19px; flex-shrink:0; }
+.mod-meta { flex:1; }
+.mod-num { font-size:8px; letter-spacing:2px; font-weight:700; text-transform:uppercase; }
+.mod-name { font-size:14px; font-weight:700; color:#0d1b2a; line-height:1.2; }
+.mod-arrow { font-size:16px; transition:transform 0.2s; flex-shrink:0; }
+.mod-arrow.open { transform:rotate(180deg); }
+.mod-body { display:none; padding:0 13px 13px; }
+.mod-body.open { display:block; }
+.mod-sep { height:1px; margin-bottom:11px; }
+.feat-row { display:flex; align-items:flex-start; gap:8px; margin-bottom:7px; }
+.feat-dot { width:5px; height:5px; border-radius:50%; margin-top:5px; flex-shrink:0; }
+.feat-txt { font-size:12px; color:#444; line-height:1.45; }
+.feat-count { margin-top:9px; padding:5px 10px; border-radius:7px; font-size:10px; font-weight:700; display:inline-block; }
+
+.mod-summary {
+  margin:14px 0 4px; padding:16px;
+  background:linear-gradient(135deg,#0d1b2a,#1a4f8a);
+  border-radius:12px; color:white; text-align:center;
+}
+.ms-num { font-size:32px; font-weight:700; }
+.ms-lbl { font-size:11px; opacity:0.7; }
+.ms-sub { font-size:10px; opacity:0.5; margin-top:3px; }
+
+/* ══════════════════════════
+   FLUJO SWIMLANE
+══════════════════════════ */
+#view-flujo { padding:0; }
+
+.swim-hint {
+  padding:8px 14px;
+  font-size:11px; color:#888;
+  background:#fff;
+  border-bottom:1px solid #e5e7eb;
+  display:flex; align-items:center; justify-content:space-between; gap:6px;
+}
+.zoom-controls { display:flex; align-items:center; gap:6px; flex-shrink:0; }
+.zoom-btn {
+  width:28px; height:28px; border-radius:6px; border:1px solid #e2e8f0;
+  background:white; font-size:16px; cursor:pointer; font-weight:700;
+  display:flex; align-items:center; justify-content:center; color:#1a4f8a;
+  line-height:1; padding:0;
+}
+.zoom-btn:active { background:#f0f4ff; }
+.zoom-label { font-size:11px; color:#1a4f8a; font-weight:700; min-width:36px; text-align:center; }
+
+/* Scroll wrapper */
+.swim-scroll {
+  overflow-x: auto;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 24px;
+}
+.swim-inner {
+  transform-origin: top left;
+  transition: transform 0.2s ease;
+  display: inline-block;
+  min-width: 100%;
+}
+
+/* The full grid */
+.swim-grid {
+  display: grid;
+  grid-template-columns: 36px repeat(5, 160px);
+  min-width: 836px;
+  position: relative;
+}
+
+/* Column headers */
+.swim-header-spacer { background:#1a2340; }
+.swim-col-header {
+  padding: 10px 6px;
+  text-align: center;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: white;
+  border-left: 1px solid rgba(255,255,255,0.1);
+}
+
+/* Row number column */
+.swim-row-num {
+  display:flex; align-items:flex-start; justify-content:center;
+  padding-top: 18px;
+  font-size:10px; font-weight:700; color:#94a3b8;
+  background:#f8fafc;
+  border-right:1px solid #e2e8f0;
+  border-bottom:1px solid #f1f5f9;
+}
+
+/* Each cell in the lane */
+.swim-cell {
+  min-height: 90px;
+  border-left: 1px solid #e2e8f0;
+  border-bottom: 1px solid #f1f5f9;
+  background: #fafbfc;
+  position: relative;
+  padding: 8px 6px;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+}
+.swim-cell.active-cell {
+  background: white;
+}
+
+/* Step box inside cell */
+.step-box {
+  width: 140px;
+  border-radius: 10px;
+  border: 2px solid;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+  z-index: 2;
+}
+.step-box:hover { box-shadow: 0 3px 12px rgba(0,0,0,0.15); transform: translateY(-1px); }
+.step-box-header { padding: 8px 9px; }
+.step-box-num {
+  width: 20px; height: 20px; border-radius: 50%;
+  display:inline-flex; align-items:center; justify-content:center;
+  font-size:10px; font-weight:700; color:white;
+  margin-bottom:5px;
+}
+.step-box-title { font-size:11px; font-weight:700; color:#0d1b2a; line-height:1.3; }
+.step-box-tag {
+  font-size:8px; padding:2px 6px; border-radius:6px;
+  font-weight:700; margin-top:4px; display:inline-block;
+  letter-spacing:0.5px;
+}
+.opt-tag {
+  font-size:8px; padding:1px 5px; border-radius:5px;
+  background:#fff3e0; color:#e65100; font-weight:700;
+  display:inline-block; margin-left:4px;
+}
+
+/* Popup flotante compacto */
+.step-popup {
+  display:none;
+  position:fixed;
+  top:50%; left:50%;
+  transform:translate(-50%,-50%);
+  width:min(320px, 88vw);
+  max-height:75vh;
+  overflow-y:auto;
+  background:white;
+  border-radius:14px;
+  border-top:4px solid;
+  box-shadow:0 8px 32px rgba(0,0,0,0.22);
+  z-index:1000;
+  animation: popIn 0.18s ease;
+}
+.step-popup.open { display:block; }
+@keyframes popIn { from{opacity:0;transform:translate(-50%,-48%) scale(0.96)} to{opacity:1;transform:translate(-50%,-50%) scale(1)} }
+
+.popup-overlay {
+  display:none;
+  position:fixed; inset:0;
+  background:rgba(0,0,0,0.35);
+  z-index:999;
+}
+.popup-overlay.open { display:block; }
+
+.popup-header { padding:12px 14px 8px; display:flex; align-items:flex-start; justify-content:space-between; gap:8px; }
+.popup-title { font-size:13px; font-weight:700; color:#0d1b2a; line-height:1.3; flex:1; }
+.popup-close { width:24px; height:24px; border-radius:50%; background:#f1f5f9; border:none; cursor:pointer; font-size:13px; color:#64748b; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.popup-desc { font-size:11px; color:#666; line-height:1.45; padding:0 14px 10px; }
+.popup-sep { height:1px; background:#f1f5f9; margin:0 14px 10px; }
+.popup-mods-title { font-size:8px; letter-spacing:2px; text-transform:uppercase; color:#aaa; font-weight:700; padding:0 14px 6px; }
+.popup-mod-item { padding:6px 14px; border-bottom:1px solid #f8fafc; }
+.popup-mod-name { font-size:11px; font-weight:700; margin-bottom:4px; }
+.popup-mod-feats { display:flex; flex-direction:column; gap:2px; }
+.popup-feat { font-size:10px; color:#555; display:flex; align-items:flex-start; gap:5px; line-height:1.4; }
+.popup-feat-dot { width:4px; height:4px; border-radius:50%; margin-top:4px; flex-shrink:0; }
+.popup-mod-item:last-child { border-bottom:none; }
+.popup-footer { padding:8px 14px; }
+
+/* detail-panel vacío — ya no se usa pero no rompe el grid */
+.detail-panel { display:none; grid-column:1/-1; }
+
+/* Connector lines between steps in same column */
+.connector-cell {
+  border-left: 1px solid #e2e8f0;
+  border-bottom: 1px solid #f1f5f9;
+  background: #fafbfc;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  min-height:28px;
+}
+.connector-cell.has-line { background:#fafbfc; }
+.v-line { width:2px; height:100%; background:#cbd5e1; }
+.arrow-down {
+  width:0; height:0;
+  border-left:5px solid transparent;
+  border-right:5px solid transparent;
+  border-top:7px solid #cbd5e1;
+  margin-top:-1px;
+}
+.h-arrow {
+  position:absolute;
+  top:50%; transform:translateY(-50%);
+  display:flex; align-items:center;
+  z-index:3;
+}
+.h-line { height:2px; background:#cbd5e1; }
+.h-arrow-head {
+  width:0; height:0;
+  border-top:5px solid transparent;
+  border-bottom:5px solid transparent;
+  border-left:7px solid #cbd5e1;
+}
+
+/* ══════════════════════════
+   ARQUITECTURA
+══════════════════════════ */
+#view-arch { padding:14px 12px 24px; }
+.arch-intro { font-size:12px; color:#777; margin-bottom:14px; line-height:1.5; }
+.arch-layer { margin-bottom:6px; }
+.arch-label { font-size:8px; letter-spacing:2px; text-transform:uppercase; font-weight:700; margin-bottom:7px; padding-left:3px; }
+.arch-items { display:flex; flex-wrap:wrap; gap:7px; }
+.arch-chip { padding:8px 13px; background:white; border-radius:18px; font-size:12px; font-weight:600; border:1.5px solid; box-shadow:0 1px 4px rgba(0,0,0,0.06); }
+.arch-arrow { display:flex; flex-direction:column; align-items:center; margin:6px 0; }
+.arch-arrow .al { width:2px; height:20px; background:#d1d5db; }
+.arch-arrow .ah { width:0; height:0; border-left:5px solid transparent; border-right:5px solid transparent; border-top:7px solid #d1d5db; }
+.flow-summary { margin-top:16px; padding:14px; background:white; border-radius:12px; box-shadow:0 1px 5px rgba(0,0,0,0.07); }
+.fs-title { font-size:11px; font-weight:700; color:#0d1b2a; margin-bottom:11px; }
+.fs-step { display:flex; align-items:flex-start; gap:9px; margin-bottom:9px; }
+.fs-dot { width:22px; height:22px; border-radius:50%; color:white; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:700; flex-shrink:0; margin-top:1px; }
+.fs-txt { font-size:11px; color:#444; line-height:1.4; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-eyebrow">Sistema de Gestión</div>
+  <div class="header-title">Servicio de Multiasistencia</div>
+  <div class="header-sub">15 módulos · 17 pasos · Flujo integrado</div>
+  <div class="tabs">
+    <button class="tab active"  onclick="switchView('modules')" id="tab-modules">📦 Módulos</button>
+    <button class="tab inactive" onclick="switchView('flujo')"  id="tab-flujo">🔄 Flujo</button>
+    <button class="tab inactive" onclick="switchView('arch')"   id="tab-arch">🏗️ Arq.</button>
+  </div>
+</div>
+
+<div id="view-modules" class="view active"></div>
+<div id="view-flujo"   class="view"></div>
+<div id="view-arch"    class="view"></div>
+
+<div class="popup-overlay" id="popup-overlay" onclick="closePopup()"></div>
+<div class="step-popup" id="step-popup">
+  <div class="popup-header">
+    <div class="popup-title" id="popup-title"></div>
+    <button class="popup-close" onclick="closePopup()">✕</button>
+  </div>
+  <div class="popup-desc" id="popup-desc"></div>
+  <div class="popup-sep"></div>
+  <div class="popup-mods-title">Módulos y funcionalidades</div>
+  <div id="popup-mods"></div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════
+   DATA
+═══════════════════════════════════════ */
+const MC = {
+  "Pólizas":                    {bg:"#e8f5f0",c:"#1a6b4a"},
+  "Compañías de Seguros":       {bg:"#e8f0fb",c:"#1a4f8a"},
+  "Clientes / Asegurados":      {bg:"#f0ebfb",c:"#5a3e8a"},
+  "Gestión de Casos":           {bg:"#fbf0eb",c:"#8a3e1a"},
+  "Geolocalización":            {bg:"#eaf5eb",c:"#2e7d32"},
+  "Gestión de Proveedores":     {bg:"#fff3e0",c:"#c45c00"},
+  "Comunicación":               {bg:"#e0f5f2",c:"#00695c"},
+  "Documentos y Evidencias":    {bg:"#f5e8fb",c:"#6a1b9a"},
+  "Seguimiento en Tiempo Real": {bg:"#e3eefa",c:"#1565c0"},
+  "Tarifas y Catálogo":         {bg:"#efebe9",c:"#4e342e"},
+  "Alertas y Escalamiento":     {bg:"#fdecea",c:"#c62828"},
+  "Liquidación al Proveedor":   {bg:"#e8f5e9",c:"#1b5e20"},
+  "Cobro a Aseguradora":        {bg:"#e3f0fd",c:"#0d47a1"},
+  "Reportería y Analítica":     {bg:"#eceff1",c:"#37474f"},
+  "Usuarios y Seguridad":       {bg:"#f3e5f5",c:"#4a148c"},
+};
+
+const modules = [
+  {id:1,  icon:"📄", title:"Pólizas",                   color:"#1a6b4a", bg:"#e8f5f0", features:["Registro por cliente y aseguradora","Tipos de cobertura por póliza","Vigencia y renovación","Límites de uso anuales","Alertas de vencimiento","Exclusiones y condiciones especiales"]},
+  {id:2,  icon:"🏢", title:"Compañías de Seguros",       color:"#1a4f8a", bg:"#e8f0fb", features:["Registro de aseguradoras","Tarifas y acuerdos comerciales","SLA diferenciado por compañía","Reportería por aseguradora","Facturación y liquidación"]},
+  {id:3,  icon:"👤", title:"Clientes / Asegurados",      color:"#5a3e8a", bg:"#f0ebfb", features:["Registro de clientes","Historial de eventos por cliente","Múltiples pólizas por cliente","Panel de estado del servicio","Encuesta de satisfacción"]},
+  {id:4,  icon:"🎫", title:"Gestión de Casos",           color:"#8a3e1a", bg:"#fbf0eb", features:["Creación automática de ticket","Datos: cliente, tipo, ubicación, urgencia","Estados del caso","Historial completo","Gestión de incidencias y reclamos"]},
+  {id:5,  icon:"🗺️", title:"Geolocalización",            color:"#2e7d32", bg:"#eaf5eb", features:["Búsqueda por proximidad y disponibilidad","Mapa en tiempo real del proveedor","Seguimiento GPS durante el servicio","Zonas de cobertura por proveedor"]},
+  {id:6,  icon:"👷", title:"Gestión de Proveedores",     color:"#c45c00", bg:"#fff3e0", features:["Registro con calificación y SLA","Disponibilidad en tiempo real","Asignación formal del servicio","Scoring automático de desempeño","Retroalimentación al proveedor","Agenda y capacidad operativa"]},
+  {id:7,  icon:"💬", title:"Comunicación",               color:"#00695c", bg:"#e0f5f2", features:["Notificaciones al cliente (ETA, proveedor)","Integración WhatsApp Business","Confirmación de servicio al proveedor","Correo electrónico automático","Alertas de incumplimiento SLA"]},
+  {id:8,  icon:"📎", title:"Documentos y Evidencias",    color:"#6a1b9a", bg:"#f5e8fb", features:["Carga de fotos, firmas y reportes","Validación por Call Center","Almacenamiento por caso/siniestro","Cierre condicionado a evidencia","Firma digital"]},
+  {id:9,  icon:"📊", title:"Seguimiento en Tiempo Real", color:"#1565c0", bg:"#e3eefa", features:["Dashboard del Call Center","Estado de todos los casos activos","Monitoreo de SLA e incidencias","Alertas ante desvíos"]},
+  {id:10, icon:"💰", title:"Tarifas y Catálogo",         color:"#4e342e", bg:"#efebe9", features:["Tarifas por tipo de servicio","Cobertura póliza vs. pago particular","Catálogo de servicios (grúa, gasfitería…)","Tiempo estándar por servicio","Requerimientos por tipo de servicio"]},
+  {id:11, icon:"🔔", title:"Alertas y Escalamiento",     color:"#c62828", bg:"#fdecea", features:["Alerta si proveedor no confirma en tiempo","Escalamiento automático a otro proveedor","Notificación al supervisor","Alertas de casos críticos o urgentes"]},
+  {id:12, icon:"🧾", title:"Liquidación al Proveedor",   color:"#1b5e20", bg:"#e8f5e9", features:["Generación automática de Orden de Servicio","Envío de OS al proveedor","Registro de factura por Área Administrativa","Validación y aprobación interna","Programación y ejecución del pago","Notificación de liquidación al proveedor","Conciliación OS vs. facturas vs. pagos","Control de cuentas por pagar"]},
+  {id:13, icon:"🏦", title:"Cobro a Aseguradora",        color:"#0d47a1", bg:"#e3f0fd", features:["Informe de servicios prestados por período","Montos por recuperar vs. cobrados","Historial de cobros por compañía","Liquidación de servicios cubiertos por póliza"]},
+  {id:14, icon:"📈", title:"Reportería y Analítica",     color:"#37474f", bg:"#eceff1", features:["Dashboard gerencial con KPIs","Tiempo promedio de atención por servicio","Ranking de proveedores por desempeño","Casos por aseguradora, zona y período","Tasa de incidencias y reclamos","Exportación a Excel/PDF"]},
+  {id:15, icon:"🔐", title:"Usuarios y Seguridad",       color:"#4a148c", bg:"#f3e5f5", features:["Roles: Admin, Supervisor, Call Center, Área Administrativa","Permisos por módulo y acción","Auditoría completa de acciones en el sistema","Autenticación con 2FA"]},
+];
+
+/* COLUMNS: 0=Cliente 1=CallCenter 2=Sistema 3=Proveedor 4=Admin */
+const COL_COLORS = ["#1a6b4a","#1a4f8a","#5a3e8a","#c45c00","#37474f"];
+const COL_LABELS = ["Cliente","Call Center","Sistema","Proveedor","Área Admin"];
+
+/* Each step: modules = [{name, feats[]}] — funcionalidades específicas del paso */
+const steps = [
+  {id:"1", num:1, label:"Contacto y Solicitud", col:0, optional:false,
+   desc:"El cliente se comunica con el Call Center solicitando asistencia.",
+   modules:[
+     {name:"Clientes / Asegurados", feats:["Registro de clientes","Historial de eventos por cliente"]},
+     {name:"Comunicación",          feats:["Integración WhatsApp Business"]},
+  ]},
+
+  {id:"2", num:2, label:"Validación de Cobertura", col:1, optional:false,
+   desc:"El Call Center registra el caso y valida vigencia de póliza, coberturas aplicables y límites del servicio.",
+   modules:[
+     {name:"Pólizas",               feats:["Vigencia y renovación","Tipos de cobertura por póliza","Límites de uso anuales","Exclusiones y condiciones especiales"]},
+     {name:"Compañías de Seguros",  feats:["SLA diferenciado por compañía"]},
+     {name:"Clientes / Asegurados", feats:["Múltiples pólizas por cliente"]},
+     
+  ]},
+
+  {id:"3", num:3, label:"Registro del Caso", col:2, optional:false,
+   desc:"El sistema crea el ticket con datos del cliente, tipo de asistencia, ubicación del evento y nivel de urgencia.",
+   modules:[
+     {name:"Gestión de Casos",      feats:["Creación automática de ticket","Datos: cliente, tipo, ubicación, urgencia","Estados del caso"]},
+     {name:"Clientes / Asegurados", feats:["Historial de eventos por cliente"]},
+     {name:"Tarifas y Catálogo",    feats:["Catálogo de servicios (grúa, gasfitería…)","Tipo de servicio requerido"]},
+  ]},
+
+  {id:"4", num:4, label:"Geolocalización y Búsqueda", col:2, optional:false,
+   desc:"El sistema sugiere proveedores disponibles según cercanía, tipo de servicio requerido y disponibilidad.",
+   modules:[
+     {name:"Geolocalización",       feats:["Búsqueda por proximidad y disponibilidad","Zonas de cobertura por proveedor"]},
+     {name:"Gestión de Proveedores",feats:["Disponibilidad en tiempo real","Registro con calificación y SLA"]},
+     {name:"Tarifas y Catálogo",    feats:["Tipo de servicio requerido","Requerimientos por tipo de servicio"]},
+  ]},
+
+  {id:"5", num:5, label:"Selección del Proveedor", col:1, optional:false,
+   desc:"El Call Center selecciona al proveedor considerando calificación, SLA y capacidad operativa.",
+   modules:[
+     {name:"Gestión de Proveedores",feats:["Registro con calificación y SLA","Agenda y capacidad operativa","Scoring automático de desempeño"]},
+     {name:"Alertas y Escalamiento",feats:["Escalamiento automático a otro proveedor","Alerta si proveedor no confirma en tiempo"]},
+  ]},
+
+  {id:"6", num:6, label:"Coordinación del Servicio", col:1, optional:false,
+   desc:"El Call Center contacta al proveedor, confirma disponibilidad, transmite datos del servicio y acuerda el ETA.",
+   modules:[
+     {name:"Comunicación",          feats:["Integración WhatsApp Business","Confirmación de servicio al proveedor"]},
+     {name:"Gestión de Proveedores",feats:["Disponibilidad en tiempo real"]},
+     {name:"Gestión de Casos",      feats:["Estados del caso","Historial completo"]},
+  ]},
+
+  {id:"7", num:7, label:"Asignación Formal", col:2, optional:false,
+   desc:"Se asigna formalmente el proveedor en el sistema y se activa el seguimiento del caso.",
+   modules:[
+     {name:"Gestión de Casos",           feats:["Estados del caso","Historial completo"]},
+     {name:"Gestión de Proveedores",     feats:["Asignación formal del servicio"]},
+     {name:"Seguimiento en Tiempo Real", feats:["Estado de todos los casos activos","Dashboard del Call Center"]},
+  ]},
+
+  {id:"8", num:8, label:"Confirmación al Cliente", col:1, optional:false,
+   desc:"El Call Center informa al cliente los datos del proveedor, tiempo estimado de llegada y detalles del servicio.",
+   modules:[
+     {name:"Comunicación",          feats:["Notificaciones al cliente (ETA, proveedor)","Correo electrónico automático","Integración WhatsApp Business"]},
+     {name:"Clientes / Asegurados", feats:["Panel de estado del servicio"]},
+  ]},
+
+  {id:"9", num:9, label:"Ejecución del Servicio", col:3, optional:false,
+   desc:"El proveedor realiza la atención en campo.",
+   modules:[
+     {name:"Seguimiento en Tiempo Real", feats:["Estado de todos los casos activos","Monitoreo de SLA e incidencias"]},
+     {name:"Geolocalización",            feats:["Mapa en tiempo real del proveedor","Seguimiento GPS durante el servicio"]},
+  ]},
+
+  {id:"10", num:10, label:"Seguimiento en Tiempo Real", col:1, optional:false,
+   desc:"El Call Center monitorea el estado del servicio, cumplimiento de tiempos e incidencias durante la ejecución.",
+   modules:[
+     {name:"Seguimiento en Tiempo Real", feats:["Dashboard del Call Center","Monitoreo de SLA e incidencias","Alertas ante desvíos"]},
+     {name:"Alertas y Escalamiento",     feats:["Notificación al supervisor","Alertas de casos críticos o urgentes"]},
+     {name:"Comunicación",              feats:["Alertas de incumplimiento SLA"]},
+  ]},
+
+  {id:"11a", num:"11a", label:"Registro de Evidencia", col:3, optional:false,
+   desc:"El proveedor envía evidencia del servicio: fotos, firmas y reporte de atención.",
+   modules:[
+     {name:"Documentos y Evidencias", feats:["Carga de fotos, firmas y reportes","Firma digital","Almacenamiento por caso/siniestro"]},
+  ]},
+
+  {id:"11b", num:"11b", label:"Validación de Evidencia", col:1, optional:false,
+   desc:"El Call Center valida y carga la evidencia recibida en el sistema.",
+   modules:[
+     {name:"Documentos y Evidencias", feats:["Validación por Call Center","Almacenamiento por caso/siniestro","Cierre condicionado a evidencia"]},
+     {name:"Gestión de Casos",        feats:["Estados del caso","Historial completo"]},
+  ]},
+
+  {id:"12", num:12, label:"Cierre Operativo", col:2, optional:false,
+   desc:"El sistema verifica evidencia completa y conformidad del servicio. Se procede al cierre formal del caso.",
+   modules:[
+     {name:"Gestión de Casos",        feats:["Estados del caso","Historial completo"]},
+     {name:"Documentos y Evidencias", feats:["Cierre condicionado a evidencia"]},
+     {name:"Reportería y Analítica",  feats:["Dashboard gerencial con KPIs","Casos por aseguradora, zona y período"]},
+  ]},
+
+  {id:"13", num:13, label:"Confirmación de Cierre", col:1, optional:false,
+   desc:"El Call Center informa al cliente que el servicio ha sido finalizado satisfactoriamente.",
+   modules:[
+     {name:"Comunicación",          feats:["Notificaciones al cliente (ETA, proveedor)","Correo electrónico automático"]},
+     {name:"Clientes / Asegurados", feats:["Panel de estado del servicio","Historial de eventos por cliente"]},
+  ]},
+
+  {id:"14", num:14, label:"Encuesta y Evaluación", col:2, optional:false,
+   desc:"El sistema envía encuesta al cliente y actualiza el scoring del proveedor según calidad, SLA y evidencia.",
+   modules:[
+     {name:"Clientes / Asegurados", feats:["Encuesta de satisfacción"]},
+     {name:"Gestión de Proveedores",feats:["Scoring automático de desempeño","Retroalimentación al proveedor"]},
+     {name:"Reportería y Analítica",feats:["Ranking de proveedores por desempeño"]},
+  ]},
+
+  {id:"15", num:15, label:"Liquidación al Proveedor", col:4, optional:false,
+   desc:"El Área Administrativa genera la OS, registra la factura, aprueba el pago y lo ejecuta. Se concilia con la aseguradora.",
+   modules:[
+     {name:"Liquidación al Proveedor", feats:["Generación automática de Orden de Servicio","Registro de factura por Área Administrativa","Validación y aprobación interna","Programación y ejecución del pago","Conciliación OS vs. facturas vs. pagos","Control de cuentas por pagar"]},
+     {name:"Cobro a Aseguradora",      feats:["Informe de servicios prestados por período","Montos por recuperar vs. cobrados","Liquidación de servicios cubiertos por póliza"]},
+     {name:"Reportería y Analítica",   feats:["Exportación a Excel/PDF","Dashboard gerencial con KPIs"]},
+  ]},
+
+  {id:"16", num:16, label:"Gestión de Incidencias", col:1, optional:true,
+   desc:"Si hay reclamos: se abre caso de calidad, se gestiona con el proveedor y se da retroalimentación.",
+   modules:[
+     {name:"Gestión de Casos",      feats:["Gestión de incidencias y reclamos","Estados del caso","Historial completo"]},
+     {name:"Comunicación",          feats:["Notificaciones al cliente (ETA, proveedor)","Integración WhatsApp Business"]},
+     {name:"Gestión de Proveedores",feats:["Retroalimentación al proveedor","Scoring automático de desempeño"]},
+     {name:"Alertas y Escalamiento",feats:["Notificación al supervisor","Alertas de casos críticos o urgentes"]},
+  ]},
+];
+
+const archLayers = [
+  {label:"CANALES DE ACCESO",              color:"#1a4f8a", items:["🌐 Web Call Center","📱 App Proveedor","👤 Portal Cliente","💬 WhatsApp API"]},
+  {label:"MÓDULOS FUNCIONALES",            color:"#1a6b4a", items:["📄 Pólizas & Seguros","🎫 Casos & Tickets","👷 Proveedores","🗺️ Geolocalización","💰 Tarifas & Catálogo","🧾 Liquidación","🏦 Cobro Aseguradora","📈 Reportería"]},
+  {label:"SERVICIOS CENTRALES",            color:"#8a3e1a", items:["🔔 Motor de Alertas","📨 Notificaciones","📎 Documentos & Evidencias","🔍 Auditoría","🔐 Usuarios & Seguridad"]},
+  {label:"INTEGRACIONES EXTERNAS",         color:"#5a3e8a", items:["🗺️ Google Maps API","💬 WhatsApp Business","🏢 Aseguradoras","💳 Pasarela de Pagos"]},
+  {label:"BASE DE DATOS & ALMACENAMIENTO", color:"#37474f", items:["🗄️ Base de datos principal","📁 Almacenamiento de archivos / evidencias"]},
+];
+
+/* ═══════════════════════════════════════
+   RENDER MÓDULOS
+═══════════════════════════════════════ */
+const vMod = document.getElementById('view-modules');
+vMod.insertAdjacentHTML('afterbegin','<div class="hint" style="padding:14px 12px 0">Toca un módulo para ver sus funcionalidades</div>');
+const modWrap = document.createElement('div');
+modWrap.style.padding = '10px 12px 0';
+let openMod = null, totalF = 0;
+
+modules.forEach(m => {
+  totalF += m.features.length;
+  const d = document.createElement('div');
+  d.className = 'mod-card'; d.id = 'mc-'+m.id;
+  d.innerHTML = `
+    <div class="mod-header" id="mh-${m.id}">
+      <div class="mod-icon" style="background:${m.bg}">${m.icon}</div>
+      <div class="mod-meta">
+        <div class="mod-num" style="color:${m.color}">Módulo ${m.id}</div>
+        <div class="mod-name">${m.title}</div>
+      </div>
+      <div class="mod-arrow" id="ma-${m.id}" style="color:${m.color}">▾</div>
+    </div>
+    <div class="mod-body" id="mb-${m.id}">
+      <div class="mod-sep" style="background:${m.color}22"></div>
+      ${m.features.map(f=>`<div class="feat-row"><div class="feat-dot" style="background:${m.color}"></div><div class="feat-txt">${f}</div></div>`).join('')}
+      <div class="feat-count" style="background:${m.bg};color:${m.color}">${m.features.length} funcionalidades</div>
+    </div>`;
+  d.onclick = ()=>toggleMod(m.id, m.color, m.bg);
+  modWrap.appendChild(d);
+});
+vMod.appendChild(modWrap);
+vMod.insertAdjacentHTML('beforeend',`
+  <div style="padding:0 12px 24px">
+    <div class="mod-summary">
+      <div class="ms-num">${totalF}</div>
+      <div class="ms-lbl">funcionalidades totales identificadas</div>
+      <div class="ms-sub">en ${modules.length} módulos del sistema</div>
+    </div>
+  </div>`);
+
+function toggleMod(id,color,bg){
+  if(openMod&&openMod!==id){
+    document.getElementById('mc-'+openMod).className='mod-card';
+    document.getElementById('mc-'+openMod).style.border='2px solid transparent';
+    document.getElementById('mb-'+openMod).className='mod-body';
+    document.getElementById('ma-'+openMod).className='mod-arrow';
+    document.getElementById('mh-'+openMod).style.background='white';
+  }
+  const card=document.getElementById('mc-'+id),body=document.getElementById('mb-'+id),
+        arrow=document.getElementById('ma-'+id),head=document.getElementById('mh-'+id);
+  if(openMod===id){
+    card.className='mod-card';card.style.border='2px solid transparent';
+    body.className='mod-body';arrow.className='mod-arrow';
+    head.style.background='white';openMod=null;
+  } else {
+    card.className='mod-card open';card.style.border=`2px solid ${color}`;
+    body.className='mod-body open';arrow.className='mod-arrow open';
+    head.style.background=bg;openMod=id;
+  }
+}
+
+/* ═══════════════════════════════════════
+   RENDER FLUJO SWIMLANE
+═══════════════════════════════════════ */
+const vFlujo = document.getElementById('view-flujo');
+vFlujo.insertAdjacentHTML('beforeend',`
+  <div class="swim-hint">
+    <span>👆 Scroll para navegar · Toca un paso para ver detalle</span>
+    <div class="zoom-controls">
+      <button class="zoom-btn" onclick="changeZoom(-0.15)" title="Alejar">🔍−</button>
+      <span class="zoom-label" id="zoom-label">100%</span>
+      <button class="zoom-btn" onclick="changeZoom(0.15)" title="Acercar">🔍+</button>
+    </div>
+  </div>`);
+
+const scrollDiv = document.createElement('div');
+scrollDiv.className = 'swim-scroll';
+scrollDiv.id = 'swim-scroll';
+
+const inner = document.createElement('div');
+inner.className = 'swim-inner';
+inner.id = 'swim-inner';
+const grid = document.createElement('div');
+grid.className = 'swim-grid';
+grid.style.background = '#1a2340';
+
+// Header row
+grid.insertAdjacentHTML('beforeend','<div class="swim-header-spacer" style="padding:10px 4px;font-size:9px;color:#94a3b8;text-align:center;font-weight:700">PASO</div>');
+COL_LABELS.forEach((lbl,i)=>{
+  grid.insertAdjacentHTML('beforeend',`<div class="swim-col-header" style="background:${COL_COLORS[i]}22;border-top:3px solid ${COL_COLORS[i]}">${lbl}</div>`);
+});
+
+let openStepId = null;
+
+steps.forEach((s, idx) => {
+  const col = s.col; // 0-4
+  const color = COL_COLORS[col];
+  const isOpt = s.optional;
+  const tags = s.modules; // array of module names, used in popup
+
+  // Row number cell
+  grid.insertAdjacentHTML('beforeend',`<div class="swim-row-num">${s.num}</div>`);
+
+  // 5 lane cells
+  for(let c=0;c<5;c++){
+    const cell = document.createElement('div');
+    cell.className = 'swim-cell' + (c===col?' active-cell':'');
+
+    if(c===col){
+      const optTag = isOpt ? `<span class="opt-tag">Opcional</span>` : '';
+      cell.innerHTML = `
+        <div class="step-box" id="sb-${s.id}" style="border-color:${color}${isOpt?';border-style:dashed':''}">
+          <div class="step-box-header">
+            <div class="step-box-num" style="background:${color}">${s.num}</div>
+            <div class="step-box-title">${s.label}${optTag}</div>
+            <div class="step-box-tag" style="background:${color}18;color:${color}">${COL_LABELS[col]}</div>
+          </div>
+        </div>`;
+      cell.querySelector('.step-box').onclick = ()=>toggleStep(s.id, color, s.num, s.label, s.desc, s.modules);
+    }
+    grid.appendChild(cell);
+  }
+
+  // Detail panel (vacío — popup flotante lo reemplaza)
+  const dp = document.createElement('div');
+  dp.className = 'detail-panel';
+  dp.id = 'dp-'+s.id;
+  grid.appendChild(dp);
+
+  // Connector row between steps (not after last)
+  if(idx < steps.length-1){
+    const nextCol = steps[idx+1].col;
+    // Row num connector
+    grid.insertAdjacentHTML('beforeend','<div style="background:#f8fafc;border-right:1px solid #e2e8f0;border-bottom:1px solid #f1f5f9;min-height:28px"></div>');
+    for(let c=0;c<5;c++){
+      const cc = document.createElement('div');
+      cc.className = 'connector-cell';
+      if(c===col && c===nextCol){
+        // straight down arrow
+        cc.innerHTML='<div style="display:flex;flex-direction:column;align-items:center;height:100%;justify-content:center"><div class="v-line" style="height:14px"></div><div class="arrow-down"></div></div>';
+      } else if(c===col && c!==nextCol){
+        // line going down and right (just show line going down)
+        cc.innerHTML='<div style="display:flex;flex-direction:column;align-items:center;height:100%;justify-content:center"><div class="v-line" style="height:14px"></div><div class="arrow-down"></div></div>';
+      } else if(c===nextCol && c!==col){
+        // destination of cross-column arrow
+        cc.innerHTML='';
+      }
+      grid.appendChild(cc);
+    }
+  }
+});
+
+inner.appendChild(grid);
+scrollDiv.appendChild(inner);
+vFlujo.appendChild(scrollDiv);
+
+let openStep = null;
+function toggleStep(id, color, num, label, desc, modNames){
+  if(openStep===id){ closePopup(); return; }
+  openStep = id;
+
+  // Highlight box — con null check
+  document.querySelectorAll('.step-box').forEach(b=>{ if(b) b.style.boxShadow=''; });
+  const box = document.getElementById('sb-'+id);
+  if(box) box.style.boxShadow=`0 0 0 3px ${color}66`;
+
+  // Build popup content
+  document.getElementById('popup-title').textContent = num+'. '+label;
+  document.getElementById('popup-title').style.color = color;
+  document.getElementById('popup-desc').textContent = desc;
+  document.getElementById('step-popup').style.borderTopColor = color;
+
+  // Modules with their features
+  const modsEl = document.getElementById('popup-mods');
+  modsEl.innerHTML = modNames.map(mod => {
+    const mName = typeof mod === 'string' ? mod : mod.name;
+    const feats = typeof mod === 'string' ? [] : mod.feats;
+    const mc = MC[mName] || {bg:'#eee', c:'#555'};
+    const modData = modules.find(m=>m.title===mName);
+    const modNum = modData ? modData.id : '';
+    return `
+      <div class="popup-mod-item">
+        <div class="popup-mod-name" style="color:${mc.c}">
+          <span style="background:${mc.c};color:white;border-radius:50%;width:16px;height:16px;display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;margin-right:5px;flex-shrink:0">${modNum}</span>${mName}
+        </div>
+        <div class="popup-mod-feats">
+          ${feats.map(f=>`<div class="popup-feat"><div class="popup-feat-dot" style="background:${mc.c}"></div>${f}</div>`).join('')}
+        </div>
+      </div>`;
+  }).join('');
+
+  document.getElementById('popup-overlay').className='popup-overlay open';
+  document.getElementById('step-popup').className='step-popup open';
+}
+function closePopup(){
+  document.getElementById('popup-overlay').className='popup-overlay';
+  document.getElementById('step-popup').className='step-popup';
+  document.querySelectorAll('.step-box').forEach(b=>b.style.boxShadow='');
+  openStep=null;
+}
+function closeStep(id){ closePopup(); }
+
+/* ═══════════════════════════════════════
+   RENDER ARQUITECTURA
+═══════════════════════════════════════ */
+const vArch = document.getElementById('view-arch');
+vArch.insertAdjacentHTML('beforeend','<p class="arch-intro">Vista por capas: desde los canales de acceso hasta la base de datos. Todos los módulos están representados.</p>');
+
+archLayers.forEach((layer,i)=>{
+  const chips = layer.items.map(item=>`<div class="arch-chip" style="color:${layer.color};border-color:${layer.color}44">${item}</div>`).join('');
+  vArch.insertAdjacentHTML('beforeend',`
+    <div class="arch-layer">
+      <div class="arch-label" style="color:${layer.color}">${layer.label}</div>
+      <div class="arch-items">${chips}</div>
+    </div>`);
+  if(i<archLayers.length-1){
+    vArch.insertAdjacentHTML('beforeend','<div class="arch-arrow"><div class="al"></div><div class="ah"></div></div>');
+  }
+});
+
+vArch.insertAdjacentHTML('beforeend',`
+  <div class="flow-summary">
+    <div class="fs-title">🔗 Flujo de datos en el sistema</div>
+    ${[
+      {c:"#1a6b4a", t:"Cliente genera solicitud → ingresa por canal de acceso"},
+      {c:"#1a4f8a", t:"Canal activa módulos funcionales (pólizas, casos, proveedores)"},
+      {c:"#8a3e1a", t:"Módulos usan servicios centrales (alertas, docs, auditoría)"},
+      {c:"#5a3e8a", t:"Servicios centrales consultan integraciones externas"},
+      {c:"#1b5e20", t:"Área Admin cierra ciclo: liquidación y cobro a aseguradora"},
+      {c:"#37474f", t:"Todo se persiste en base de datos y almacenamiento"},
+    ].map(s=>`<div class="fs-step"><div class="fs-dot" style="background:${s.c}">→</div><div class="fs-txt">${s.t}</div></div>`).join('')}
+  </div>`);
+
+/* ═══════════════════════════════════════
+   ZOOM
+═══════════════════════════════════════ */
+let zoomLevel = 1.0;
+function changeZoom(delta){
+  zoomLevel = Math.min(1.0, Math.max(0.3, zoomLevel + delta));
+  const innerEl = document.getElementById('swim-inner');
+  const scrollEl = document.getElementById('swim-scroll');
+  if(!innerEl || !scrollEl) return;
+  innerEl.style.transform = `scale(${zoomLevel})`;
+  innerEl.style.transformOrigin = 'top left';
+  // Ajustar altura del contenedor para que no se corte
+  const naturalH = innerEl.offsetHeight;
+  scrollEl.style.height = Math.ceil(naturalH * zoomLevel + 32) + 'px';
+  document.getElementById('zoom-label').textContent = Math.round(zoomLevel*100)+'%';
+}
+
+/* ═══════════════════════════════════════
+   TAB SWITCH
+═══════════════════════════════════════ */
+function switchView(v){
+  ['modules','flujo','arch'].forEach(id=>{
+    document.getElementById('view-'+id).className='view'+(v===id?' active':'');
+    document.getElementById('tab-'+id).className='tab'+(v===id?' active':' inactive');
+  });
+}
+</script>
+</body>
+</html>

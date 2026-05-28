@@ -1,0 +1,774 @@
+:root {
+  --ink: #16202a;
+  --muted: #667085;
+  --line: #d9e2ec;
+  --bg: #f4f7fb;
+  --panel: #ffffff;
+  --blue: #1b5c9e;
+  --green: #287a5b;
+  --amber: #a45f00;
+  --red: #b42318;
+  --violet: #6941c6;
+  --white: #ffffff;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Segoe UI", Arial, sans-serif;
+  color: var(--ink);
+  background: var(--bg);
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 24px;
+  background: #102233;
+  color: white;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.eyebrow {
+  margin: 0 0 4px;
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #9fc5ee;
+}
+
+h1 {
+  margin: 0;
+  font-size: 21px;
+  font-weight: 700;
+}
+
+main {
+  padding: 18px 24px 32px;
+  max-width: 1480px;
+  margin: 0 auto;
+}
+
+.source {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  color: #d7e8fb;
+}
+
+.fileButton {
+  position: relative;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  height: 34px;
+  padding: 0 12px;
+  border: 1px solid rgba(255, 255, 255, .3);
+  border-radius: 6px;
+  cursor: pointer;
+  background: rgba(255, 255, 255, .08);
+}
+
+.fileButton input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.controls {
+  display: grid;
+  grid-template-columns: minmax(240px, 1fr) 180px 200px 180px auto;
+  gap: 12px;
+  align-items: end;
+  margin-bottom: 14px;
+}
+
+.layoutTools {
+  display: flex;
+  align-items: end;
+  gap: 8px;
+  height: 38px;
+}
+
+.layoutTools button,
+.layoutImport {
+  height: 38px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: white;
+  color: #344054;
+  font-size: 12px;
+  font-weight: 750;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.layoutTools button.active {
+  border-color: var(--blue);
+  background: #eef4ff;
+  color: var(--blue);
+}
+
+.layoutImport input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+label {
+  display: grid;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 650;
+  color: #344054;
+}
+
+input,
+select {
+  height: 38px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 0 10px;
+  background: white;
+  font: inherit;
+}
+
+.check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 38px;
+}
+
+.check input {
+  width: 16px;
+  height: 16px;
+}
+
+.summary {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.metric {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.metric b {
+  display: block;
+  font-size: 24px;
+  line-height: 1;
+  margin-bottom: 5px;
+}
+
+.metric span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 14px;
+  border-bottom: 1px solid var(--line);
+}
+
+.tab {
+  border: 1px solid transparent;
+  border-bottom: 0;
+  background: transparent;
+  color: var(--muted);
+  padding: 10px 12px;
+  border-radius: 7px 7px 0 0;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.tab.active {
+  background: white;
+  color: var(--blue);
+  border-color: var(--line);
+}
+
+.view {
+  display: none;
+}
+
+.view.active {
+  display: block;
+}
+
+.flow {
+  display: grid;
+  gap: 10px;
+}
+
+.step {
+  display: grid;
+  grid-template-columns: 48px 1.2fr .8fr .9fr .8fr;
+  gap: 12px;
+  align-items: stretch;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-left: 5px solid var(--blue);
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.step[data-phase="MVP condicionado"] {
+  border-left-color: var(--amber);
+}
+
+.step[data-phase="Pendiente de definición"] {
+  border-left-color: var(--red);
+}
+
+.num {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  color: white;
+  background: var(--blue);
+  font-weight: 800;
+}
+
+.step[data-phase="MVP condicionado"] .num {
+  background: var(--amber);
+}
+
+.step[data-phase="Pendiente de definición"] .num {
+  background: var(--red);
+}
+
+.title {
+  font-weight: 800;
+  margin-bottom: 5px;
+}
+
+.muted {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.pillRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 7px;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: #eef4ff;
+  color: #1849a9;
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.phase {
+  background: #ecfdf3;
+  color: #027a48;
+}
+
+.phase.cond {
+  background: #fff6e5;
+  color: #93370d;
+}
+
+.phase.pending {
+  background: #fef3f2;
+  color: #b42318;
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.diagramWrap {
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  overflow: auto;
+  position: relative;
+}
+
+.diagramHint {
+  position: sticky;
+  left: 0;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 13px;
+  background: #f8fafc;
+}
+
+.legend {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 14px;
+  color: #344054;
+}
+
+.dot {
+  display: inline-block;
+  width: 12px;
+  height: 4px;
+  border-radius: 999px;
+  background: #315f87;
+}
+
+.dot.cond {
+  background: var(--amber);
+}
+
+.dot.pending {
+  background: var(--red);
+}
+
+.diagram {
+  min-width: 1900px;
+  display: block;
+}
+
+.laneHeader {
+  fill: #102233;
+}
+
+.laneTitle {
+  fill: white;
+  font-size: 13px;
+  font-weight: 750;
+}
+
+.laneBand {
+  fill: #ffffff;
+  stroke: #e8eef5;
+  stroke-width: 1;
+}
+
+.laneBand.alt {
+  fill: #f8fafc;
+}
+
+.diagramCard rect {
+  fill: #ffffff;
+  stroke: var(--blue);
+  stroke-width: 2;
+  filter: url(#shadow);
+}
+
+.diagramCard.selected rect {
+  stroke-width: 3;
+}
+
+.diagramCard {
+  cursor: grab;
+}
+
+.diagramWrap.viewMode .diagramCard {
+  cursor: default;
+}
+
+.diagramCard.dragging {
+  cursor: grabbing;
+  opacity: .88;
+}
+
+.diagramCard rect.cond {
+  stroke: var(--amber);
+}
+
+.diagramCard rect.pending {
+  stroke: var(--red);
+}
+
+.diagramCard circle {
+  fill: var(--blue);
+}
+
+.diagramCard rect.cond + circle {
+  fill: var(--amber);
+}
+
+.diagramCard rect.pending + circle {
+  fill: var(--red);
+}
+
+.cardNum {
+  fill: white;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.cardTitle {
+  fill: var(--ink);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.cardMeta {
+  fill: var(--muted);
+  font-size: 12px;
+}
+
+.cardSystem {
+  font-size: 15px;
+}
+
+.diagramDetails {
+  position: absolute;
+  z-index: 3;
+  width: 390px;
+  max-height: 520px;
+  overflow: auto;
+  padding: 14px;
+  background: rgba(255, 255, 255, .97);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: 0 12px 30px rgba(16, 34, 51, .16);
+}
+
+.detailsClose {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 26px;
+  height: 26px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--muted);
+  font-size: 14px;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  line-height: 1;
+}
+
+.detailsClose:hover {
+  background: var(--bg);
+  color: var(--ink);
+}
+
+.detailsHeader {
+  display: grid;
+  grid-template-columns: 42px 1fr;
+  gap: 10px;
+  align-items: start;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--line);
+}
+
+.detailsHeader h2 {
+  margin: 0 0 4px;
+  font-size: 16px;
+  line-height: 1.2;
+}
+
+.detailsHeader p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.diagramDetails dl {
+  display: grid;
+  gap: 8px;
+  margin: 12px 0 0;
+}
+
+.diagramDetails dt {
+  color: #344054;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.diagramDetails dd {
+  margin: 0;
+  color: var(--ink);
+  font-size: 13px;
+  line-height: 1.38;
+}
+
+.diagramDetails ul {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.diagramDetails li + li {
+  margin-top: 6px;
+}
+
+.diagramDetails code {
+  display: inline-block;
+  margin: 2px 3px 2px 0;
+  padding: 2px 5px;
+  border-radius: 4px;
+  background: #eef4ff;
+  color: #1849a9;
+}
+
+.flowLine {
+  fill: none !important;
+  stroke: #315f87;
+  stroke-width: 3.2;
+  opacity: .95;
+}
+
+.flowLine.cond,
+.flowLine.pending {
+  fill: none !important;
+}
+
+.arrow.cond {
+  stroke: var(--amber);
+  fill: var(--amber);
+}
+
+.arrow.pending {
+  stroke: var(--red);
+  fill: var(--red);
+}
+
+.flowLine.cond {
+  stroke: var(--amber);
+}
+
+.flowLine.pending {
+  stroke: var(--red);
+}
+
+.flowLine.loop {
+  stroke-dasharray: 6 5;
+  stroke-width: 2.6;
+}
+
+.calloutLine {
+  fill: none !important;
+  stroke: var(--amber);
+  stroke-width: 2.4;
+  stroke-dasharray: 6 5;
+}
+
+.calloutLine.pending,
+.calloutLine.cond {
+  stroke: var(--amber);
+}
+
+.calloutBox rect {
+  fill: #ffffff;
+  stroke: var(--amber);
+  stroke-width: 1.5;
+  filter: url(#shadow);
+}
+
+.calloutBox.pending rect {
+  stroke: var(--red);
+}
+
+.calloutBox.terminal rect {
+  fill: #fef3f2;
+  stroke: var(--red);
+}
+
+.calloutBox.terminal .calloutTarget {
+  fill: var(--red);
+  font-weight: 850;
+}
+
+.calloutTitle {
+  fill: #344054;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.calloutTarget {
+  fill: var(--muted);
+  font-size: 9px;
+  font-weight: 650;
+}
+
+.arrow {
+  fill: #315f87;
+  stroke: #315f87;
+  opacity: .9;
+}
+
+.lineLabel rect {
+  fill: #ffffff;
+  stroke: #9bb2c7;
+  stroke-width: 1;
+  opacity: .98;
+}
+
+.lineLabel text {
+  fill: #344054;
+  font-size: 10px;
+  font-weight: 700;
+  paint-order: stroke;
+  stroke: #ffffff;
+  stroke-width: 4px;
+  stroke-linejoin: round;
+}
+
+.lineLabel.cond rect {
+  stroke: var(--amber);
+}
+
+.lineLabel.pending rect {
+  stroke: var(--red);
+}
+
+.terminalNode rect {
+  fill: #fef3f2;
+  stroke: var(--red);
+  stroke-width: 2;
+  filter: url(#shadow);
+}
+
+.terminalNode text {
+  fill: var(--red);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.connectorHandle {
+  fill: rgba(255, 255, 255, .16);
+  stroke: #315f87;
+  stroke-width: 2;
+  cursor: grab;
+  opacity: .72;
+}
+
+.diagramWrap.viewMode .connectorHandle {
+  display: none;
+}
+
+.connectorHandle.to {
+  stroke: var(--green);
+}
+
+.connectorHandle.control {
+  fill: rgba(105, 65, 198, .12);
+  stroke: var(--violet);
+}
+
+.connectorHandle.label {
+  fill: rgba(49, 95, 135, .28);
+  stroke: #315f87;
+  stroke-width: 1.5;
+}
+
+.connectorHandle:hover {
+  fill: #ffffff;
+  opacity: 1;
+}
+
+.connectorHandle.dragging {
+  cursor: grabbing;
+  fill: #eaf3ff;
+  opacity: 1;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+}
+
+th,
+td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  vertical-align: top;
+  font-size: 13px;
+}
+
+th {
+  background: #f8fafc;
+  color: #344054;
+  font-size: 12px;
+}
+
+.scopeGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.scopeCard {
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.scopeCard h3 {
+  margin: 0 0 8px;
+  font-size: 15px;
+}
+
+.scopeCard ul {
+  margin: 0;
+  padding-left: 18px;
+  color: #344054;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+pre {
+  margin: 0;
+  padding: 14px;
+  background: #0b1620;
+  color: #d6e4f0;
+  border-radius: 8px;
+  overflow: auto;
+  max-height: 70vh;
+}
+
+@media (max-width: 980px) {
+  .topbar,
+  .source {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .controls,
+  .summary,
+  .scopeGrid,
+  .step {
+    grid-template-columns: 1fr;
+  }
+}

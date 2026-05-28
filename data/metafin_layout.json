@@ -1,0 +1,658 @@
+{
+  "version": "0.2",
+  "estado": "layout_acomodado_manual",
+  "actualizado": "2026-05-27",
+  "notas": "Layout ajustado manualmente desde el visor. Incluye posiciones de tarjetas movidas, conectores, puntos de control, etiquetas y terminales Fin.",
+  "diagram": {
+    "steps": {
+      "8": {
+        "x": 321,
+        "y": 1651
+      },
+      "11": {
+        "x": 583,
+        "y": 2358
+      },
+      "13": {
+        "x": 843,
+        "y": 2836
+      },
+      "14": {
+        "x": 328,
+        "y": 3032
+      },
+      "15": {
+        "x": 843,
+        "y": 3291
+      },
+      "17": {
+        "x": 585,
+        "y": 3743
+      },
+      "20": {
+        "x": 1105,
+        "y": 4446
+      }
+    },
+    "connectors": {
+      "7>7|Ubicación pendiente": {
+        "to": {
+          "x": 278,
+          "y": 1472
+        },
+        "from": {
+          "x": 278,
+          "y": 1569
+        },
+        "label": {
+          "x": 352,
+          "y": 1515
+        },
+        "control": {
+          "x": 408,
+          "y": 1517
+        }
+      },
+      "21>fin|Control y reportería disponibles": {
+        "to": {
+          "x": 969,
+          "y": 4867
+        },
+        "control": {
+          "x": 826,
+          "y": 4866
+        },
+        "from": {
+          "x": 717,
+          "y": 4792
+        }
+      },
+      "1>2|Solicitud recibida": {
+        "label": {
+          "x": 207,
+          "y": 288
+        },
+        "to": {
+          "x": 322,
+          "y": 358
+        },
+        "control": {
+          "x": 161,
+          "y": 333
+        }
+      },
+      "2>3|Cliente/contrato identificado": {
+        "label": {
+          "x": 445,
+          "y": 484
+        },
+        "control": {
+          "x": 479,
+          "y": 482
+        }
+      },
+      "4>4|Datos insuficientes / pendiente": {
+        "to": {
+          "x": 538,
+          "y": 788
+        },
+        "label": {
+          "x": 633,
+          "y": 821
+        },
+        "control": {
+          "x": 646,
+          "y": 826
+        },
+        "from": {
+          "x": 538,
+          "y": 867
+        }
+      },
+      "4>fin|No procede / rechazada / desistida": {
+        "to": {
+          "x": 989,
+          "y": 943
+        },
+        "label": {
+          "x": 748,
+          "y": 944
+        },
+        "from": {
+          "x": 524,
+          "y": 882
+        },
+        "control": {
+          "x": 694,
+          "y": 967
+        }
+      },
+      "4>5|Procede / excepción autorizada": {
+        "label": {
+          "x": 460,
+          "y": 937
+        },
+        "control": {
+          "x": 457,
+          "y": 936
+        }
+      },
+      "18>15|Evidencia/costo observado": {
+        "to": {
+          "x": 1002,
+          "y": 3425
+        },
+        "control": {
+          "x": 1026,
+          "y": 3954
+        },
+        "label": {
+          "x": 856,
+          "y": 3914
+        },
+        "from": {
+          "x": 538,
+          "y": 4066
+        }
+      },
+      "15>15|Evidencia pendiente u observada": {
+        "to": {
+          "x": 842,
+          "y": 3315
+        },
+        "label": {
+          "x": 754,
+          "y": 3351
+        },
+        "control": {
+          "x": 696,
+          "y": 3365
+        },
+        "from": {
+          "x": 842,
+          "y": 3399
+        }
+      },
+      "14>16|Incidencia cierra la asistencia": {
+        "to": {
+          "x": 397,
+          "y": 3522
+        },
+        "from": {
+          "x": 477,
+          "y": 3151
+        },
+        "control": {
+          "x": 336,
+          "y": 3291
+        },
+        "label": {
+          "x": 411,
+          "y": 3319
+        }
+      },
+      "13>16|Cancelado sin costo": {
+        "to": {
+          "x": 547,
+          "y": 3594
+        },
+        "control": {
+          "x": 1435,
+          "y": 3590
+        },
+        "label": {
+          "x": 1121,
+          "y": 3453
+        },
+        "from": {
+          "x": 1059,
+          "y": 2918
+        }
+      },
+      "13>14|Fallido o reclamado": {
+        "to": {
+          "x": 543,
+          "y": 3102
+        },
+        "control": {
+          "x": 762,
+          "y": 3071
+        },
+        "from": {
+          "x": 843,
+          "y": 2941
+        },
+        "label": {
+          "x": 739,
+          "y": 3036
+        }
+      },
+      "13>15|Atendido / cancelado con costo": {
+        "from": {
+          "x": 950,
+          "y": 2958
+        },
+        "to": {
+          "x": 963,
+          "y": 3291
+        },
+        "control": {
+          "x": 999,
+          "y": 3126
+        },
+        "label": {
+          "x": 958,
+          "y": 3114
+        }
+      },
+      "14>13|Incidencia resuelta y servicio continúa": {
+        "label": {
+          "x": 671,
+          "y": 2954
+        },
+        "from": {
+          "x": 542,
+          "y": 3085
+        },
+        "control": {
+          "x": 631,
+          "y": 2920
+        },
+        "to": {
+          "x": 843,
+          "y": 2928
+        }
+      },
+      "3>4|Resultado de validación": {
+        "control": {
+          "x": 465,
+          "y": 706
+        },
+        "label": {
+          "x": 451,
+          "y": 708
+        },
+        "to": {
+          "x": 442,
+          "y": 762
+        }
+      },
+      "5>6|Asistencia aperturada": {
+        "control": {
+          "x": 469,
+          "y": 1166
+        },
+        "label": {
+          "x": 446,
+          "y": 1173
+        }
+      },
+      "6>7|Servicio clasificado": {
+        "control": {
+          "x": 204,
+          "y": 1368
+        },
+        "from": {
+          "x": 322,
+          "y": 1291
+        },
+        "label": {
+          "x": 226,
+          "y": 1348
+        }
+      },
+      "7>8|Ubicación suficiente": {
+        "label": {
+          "x": 227,
+          "y": 1654
+        },
+        "to": {
+          "x": 321,
+          "y": 1685
+        },
+        "control": {
+          "x": 203,
+          "y": 1654
+        }
+      },
+      "14>8|Reasignación requerida": {
+        "to": {
+          "x": 321,
+          "y": 1714
+        },
+        "from": {
+          "x": 328,
+          "y": 3137
+        },
+        "control": {
+          "x": -50,
+          "y": 2437
+        },
+        "label": {
+          "x": 158,
+          "y": 2126
+        }
+      },
+      "10>8|Proveedor rechaza": {
+        "to": {
+          "x": 537,
+          "y": 1753
+        },
+        "from": {
+          "x": 538,
+          "y": 2198
+        },
+        "control": {
+          "x": 731,
+          "y": 1948
+        },
+        "label": {
+          "x": 631,
+          "y": 1992
+        }
+      },
+      "8>9|Proveedor candidato encontrado": {
+        "from": {
+          "x": 423,
+          "y": 1771
+        },
+        "control": {
+          "x": 460,
+          "y": 1842
+        },
+        "label": {
+          "x": 451,
+          "y": 1849
+        }
+      },
+      "8>14|Sin proveedor disponible / requiere escalamiento": {
+        "from": {
+          "x": 321,
+          "y": 1771
+        },
+        "to": {
+          "x": 335,
+          "y": 3031
+        },
+        "control": {
+          "x": 79,
+          "y": 2476
+        },
+        "label": {
+          "x": 212,
+          "y": 2487
+        }
+      },
+      "9>10|Proveedor preasignado": {
+        "label": {
+          "x": 422,
+          "y": 2090
+        },
+        "control": {
+          "x": 454,
+          "y": 2086
+        }
+      },
+      "10>14|No responde / acepta y falla": {
+        "to": {
+          "x": 335,
+          "y": 3031
+        },
+        "from": {
+          "x": 322,
+          "y": 2237
+        },
+        "control": {
+          "x": 216,
+          "y": 2596
+        },
+        "label": {
+          "x": 291,
+          "y": 2576
+        }
+      },
+      "11>12|OA emitida": {
+        "to": {
+          "x": 538,
+          "y": 2660
+        },
+        "control": {
+          "x": 712,
+          "y": 2589
+        },
+        "label": {
+          "x": 652,
+          "y": 2599
+        },
+        "from": {
+          "x": 717,
+          "y": 2478
+        }
+      },
+      "12>13|Cliente informado / datos disponibles": {
+        "to": {
+          "x": 842,
+          "y": 2878
+        },
+        "control": {
+          "x": 556,
+          "y": 2838
+        },
+        "label": {
+          "x": 615,
+          "y": 2811
+        }
+      },
+      "15>16|Evidencia recibida / conformidad registrada": {
+        "to": {
+          "x": 538,
+          "y": 3552
+        },
+        "control": {
+          "x": 760,
+          "y": 3499
+        },
+        "label": {
+          "x": 730,
+          "y": 3477
+        },
+        "from": {
+          "x": 892,
+          "y": 3425
+        }
+      },
+      "16>17|Cierre operativo realizado": {
+        "from": {
+          "x": 430,
+          "y": 3648
+        },
+        "to": {
+          "x": 585,
+          "y": 3800
+        },
+        "control": {
+          "x": 487,
+          "y": 3737
+        },
+        "label": {
+          "x": 530,
+          "y": 3712
+        }
+      },
+      "10>11|Proveedor acepta": {
+        "control": {
+          "x": 490,
+          "y": 2378
+        },
+        "label": {
+          "x": 487,
+          "y": 2356
+        },
+        "to": {
+          "x": 582,
+          "y": 2414
+        }
+      },
+      "17>18|Encuesta/scoring registrado o canal externo registrado": {
+        "control": {
+          "x": 655,
+          "y": 3946
+        },
+        "to": {
+          "x": 538,
+          "y": 4007
+        }
+      },
+      "18>19|Evidencia/costo validados": {
+        "to": {
+          "x": 1102,
+          "y": 4291
+        },
+        "control": {
+          "x": 544,
+          "y": 4292
+        },
+        "label": {
+          "x": 585,
+          "y": 4222
+        }
+      },
+      "19>20|Liquidación/pago proveedor procesado": {
+        "to": {
+          "x": 1221,
+          "y": 4442
+        },
+        "label": {
+          "x": 1271,
+          "y": 4387
+        },
+        "control": {
+          "x": 1265,
+          "y": 4401
+        }
+      },
+      "20>21|Reporte/cobro/conciliación aplica o se marca no aplica": {
+        "to": {
+          "x": 798,
+          "y": 4727
+        },
+        "control": {
+          "x": 1156,
+          "y": 4743
+        },
+        "label": {
+          "x": 1132,
+          "y": 4676
+        }
+      },
+      "16>17|Cierre operativo — encuesta": {
+        "control": {
+          "x": 579,
+          "y": 3682
+        },
+        "label": {
+          "x": 586,
+          "y": 3686
+        }
+      },
+      "16>18|Cierre operativo — vía administrativa": {
+        "control": {
+          "x": 357,
+          "y": 3811
+        },
+        "label": {
+          "x": 394,
+          "y": 3784
+        }
+      },
+      "2>4|Cliente no identificado en sistema": {
+        "to": {
+          "x": 322,
+          "y": 833
+        },
+        "from": {
+          "x": 322,
+          "y": 396
+        },
+        "control": {
+          "x": 167,
+          "y": 615
+        },
+        "label": {
+          "x": 214,
+          "y": 594
+        }
+      },
+      "17>21|Encuesta/scoring registrado": {
+        "label": {
+          "x": 708,
+          "y": 3949
+        },
+        "control": {
+          "x": 761,
+          "y": 4299
+        }
+      },
+      "7>14|Ubicación no obtenible": {
+        "from": {
+          "x": 64,
+          "y": 1586
+        },
+        "to": {
+          "x": 335,
+          "y": 3032
+        },
+        "control": {
+          "x": 8,
+          "y": 2962
+        },
+        "label": {
+          "x": 83,
+          "y": 2581
+        }
+      },
+      "15>14|Evidencia no recibida en plazo": {
+        "to": {
+          "x": 544,
+          "y": 3142
+        },
+        "label": {
+          "x": 764,
+          "y": 3201
+        },
+        "from": {
+          "x": 903,
+          "y": 3292
+        },
+        "control": {
+          "x": 737,
+          "y": 3161
+        }
+      },
+      "18>20|Sin costo / liquidación no aplica": {
+        "to": {
+          "x": 1105,
+          "y": 4504
+        },
+        "control": {
+          "x": 475,
+          "y": 4501
+        },
+        "label": {
+          "x": 533,
+          "y": 4331
+        }
+      }
+    },
+    "terminals": {
+      "21>fin|Control y reportería disponibles": {
+        "x": 969,
+        "y": 4867
+      },
+      "4>fin|No procede / rechazada / desistida": {
+        "x": 989,
+        "y": 943
+      }
+    }
+  }
+}
